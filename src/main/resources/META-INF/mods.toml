@@ -1,0 +1,36 @@
+modLoader="lowcodefml"
+loaderVersion="[40,)"
+license="MIT"
+
+[[mods]]
+modId="createcrushingfix"
+version="1.0.0"
+displayName="Create Crushing Recipe Fix"
+authors="zachsem"
+description='''
+An unofficial compatibility fix for Create 0.5.1i on Minecraft 1.18.2.
+
+Removes redundant duplicate Crushing recipes while retaining Create's tag-based
+recycling recipes and their original outputs.
+'''
+
+[[dependencies.createcrushingfix]]
+modId="forge"
+mandatory=true
+versionRange="[40.2.4,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.createcrushingfix]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18.2]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.createcrushingfix]]
+modId="create"
+mandatory=true
+versionRange="[0.5.1.i]"
+ordering="AFTER"
+side="BOTH"
