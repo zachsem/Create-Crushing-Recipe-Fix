@@ -68,6 +68,10 @@ Test coverage included:
 - Actual Crushing Wheels processing of Asurine after the fix
 - JEI showing one Crushing recipe instead of the duplicate pair
 
+## Issues and requests
+
+Please report bugs and compatibility requests through this repository's GitHub Issues page rather than CurseForge comments. Use the provided Bug Report or Feature Request template so logs and reproduction details stay together.
+
 ## Removing the mod
 
 The mod does not add blocks, items, entities, or save data. Removing it does not damage a world; the original duplicate Create recipes simply return.
