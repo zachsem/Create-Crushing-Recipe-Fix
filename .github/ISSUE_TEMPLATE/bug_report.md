@@ -13,6 +13,11 @@ assignees: ''
 - Create:
 - Create Crushing Recipe Fix:
 
+## Environment
+
+- Single-player or dedicated server:
+- Is the patch installed on the server, client, or both?
+
 ## What happened?
 
 Describe the problem clearly.
