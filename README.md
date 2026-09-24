@@ -70,6 +70,8 @@ Test coverage included:
 - Actual Crushing Wheels processing of Asurine after the fix
 - JEI showing one Crushing recipe instead of the duplicate pair
 
+Detailed validation notes are available in [docs/VALIDATION.md](docs/VALIDATION.md).
+
 ## Issues and requests
 
 Please report bugs and compatibility requests through this repository's GitHub Issues page rather than CurseForge comments. Use the provided Bug Report or Feature Request template so logs and reproduction details stay together.
