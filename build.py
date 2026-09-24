@@ -4,7 +4,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "src" / "main" / "resources"
 DIST = ROOT / "dist"
-OUT = DIST / "create-crushing-recipe-fix-1.0.0.jar"
+OUT = DIST / "create-crushing-recipe-fix-1.0.1.jar"
 
 DIST.mkdir(exist_ok=True)
 
