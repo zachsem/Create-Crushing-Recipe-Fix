@@ -37,7 +37,7 @@ The mod metadata intentionally targets **Create 0.5.1i exactly** because that is
 
 ### Single-player
 
-Put `create-crushing-recipe-fix-1.0.0.jar` in the instance's `mods` folder.
+Put `create-crushing-recipe-fix-1.0.1.jar` in the instance's `mods` folder.
 
 ### Dedicated server
 
@@ -90,7 +90,7 @@ Run:
 python build.py
 ```
 
-The output is written to `dist/create-crushing-recipe-fix-1.0.0.jar`.
+The output is written to `dist/create-crushing-recipe-fix-1.0.1.jar`.
 
 ## License
 
