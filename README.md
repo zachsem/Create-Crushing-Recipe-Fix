@@ -4,6 +4,8 @@ A small, unofficial compatibility/fix mod for **Create 0.5.1i** on **Minecraft 1
 
 It fixes duplicate Crushing recipes reported in Create issue #5559 without modifying the Create JAR, without Mixins, and without adding gameplay content.
 
+CurseForge: https://www.curseforge.com/minecraft/mc-mods/create-crushing-recipe-fix
+
 Upstream issue: https://github.com/Creators-of-Create/Create/issues/5559
 
 ## What it fixes
