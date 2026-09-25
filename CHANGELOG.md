@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Republished the same fix as 1.0.1 so the public release version is unique.
+- No gameplay changes. Version 1.0.1 supersedes the duplicate 1.0.0 upload while keeping the same fix.
 
 ## 1.0.0 - 2026-09-23
 
