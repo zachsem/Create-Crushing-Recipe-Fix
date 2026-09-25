@@ -55,7 +55,7 @@ No Create files are edited in place.
 
 ## Tested
 
-Verified with:
+Runtime behavior was validated on the original 1.0.0 build with:
 
 - Minecraft 1.18.2
 - Forge 40.3.0
@@ -69,6 +69,8 @@ Test coverage included:
 - Dedicated server with the patch installed only on the server
 - Actual Crushing Wheels processing of Asurine after the fix
 - JEI showing one Crushing recipe instead of the duplicate pair
+
+Version 1.0.1 keeps the same recipe-fix payload and changes only release/version metadata. The final 1.0.1 JAR was package-validated after rebuilding.
 
 Detailed validation notes are available in [docs/VALIDATION.md](docs/VALIDATION.md).
 
