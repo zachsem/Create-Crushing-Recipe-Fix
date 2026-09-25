@@ -1,6 +1,6 @@
 # Validation
 
-Validation performed for Create Crushing Recipe Fix 1.0.0.
+Runtime validation was performed for Create Crushing Recipe Fix 1.0.0. Version 1.0.1 uses the same recipe-fix payload with release/version metadata updated.
 
 ## Test environment
 
@@ -36,3 +36,16 @@ With the patch installed:
 The patch disables only the redundant direct-item recipe IDs and preserves Create's tag-based recycling recipes.
 
 No blocks, items, entities, or persistent world data are added by this project.
+
+
+## 1.0.1 release artifact
+
+The final 1.0.1 JAR was package-validated after rebuilding:
+
+- Internal mod version is 1.0.1.
+- License metadata is MIT.
+- Pack metadata identifies version 1.0.1.
+- All six intended recipe overrides are present.
+- Each override retains the same `forge:false` condition used by the runtime-tested build.
+
+No gameplay or recipe behavior was changed between the runtime-tested 1.0.0 build and 1.0.1.
