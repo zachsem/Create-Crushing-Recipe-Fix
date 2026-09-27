@@ -114,4 +114,4 @@ jobs:
           mc: ${{ env.MC_VERSION }}
           modloader: forge
           java: ${{ env.JAVA_VERSION }}
-          cache-mc: "github"
+          cache-mc: "true"
