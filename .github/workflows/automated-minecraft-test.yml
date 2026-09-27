@@ -31,7 +31,7 @@ jobs:
           python-version: "3.x"
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -102,7 +102,7 @@ jobs:
           python-version: "3.x"
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -118,9 +118,18 @@ jobs:
       - name: Build CI recipe assertion mod
         run: gradle -p ci/recipe-test-mod build --stacktrace
 
+      - name: Validate CI helper JAR
+        run: |
+          HELPER="ci/recipe-test-mod/build/libs/create-crushing-recipe-ci-test-1.0.0.jar"
+          test -s "$HELPER"
+          jar tf "$HELPER" | grep -q 'io/github/zachsem/crushingtest/RecipeAssertionsMod.class'
+          jar tf "$HELPER" | grep -q 'META-INF/mods.toml'
+          unzip -p "$HELPER" META-INF/mods.toml | grep -q 'modId="create_crushing_recipe_ci_test"'
+
       - name: Stage test environment
         run: |
           mkdir -p run/mods
+          rm -f run/ci-recipe-test-result.txt
 
           cp ci/recipe-test-mod/build/libs/create-crushing-recipe-ci-test-1.0.0.jar run/mods/
 
@@ -134,12 +143,39 @@ jobs:
 
           test -s run/mods/create-1.18.2-0.5.1.i.jar
           test -s run/mods/create-crushing-recipe-ci-test-1.0.0.jar
+          ls -lh run/mods
 
       - name: Run real Forge dedicated server and assert recipes
+        id: minecraft_server
+        continue-on-error: true
         uses: headlesshq/mc-server-test@1.1.1
         with:
           mc: ${{ env.MC_VERSION }}
           modloader: forge
           java: ${{ env.JAVA_VERSION }}
           cache-mc: "true"
-          headlessmc-command: --jvm "-DcreateCrushingRecipeFix.expected=${{ matrix.expected_patch }}"
+          headlessmc-command: >-
+            --jvm "-DcreateCrushingRecipeFix.expected=${{ matrix.expected_patch }}
+            -DcreateCrushingRecipeFix.resultFile=${{ github.workspace }}/run/ci-recipe-test-result.txt"
+
+      - name: Verify runtime recipe assertions
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "MC-Server-Test outcome: ${{ steps.minecraft_server.outcome }}"
+
+          if [ ! -f run/ci-recipe-test-result.txt ]; then
+            echo "The CI helper did not produce a runtime assertion result."
+            exit 1
+          fi
+
+          cat run/ci-recipe-test-result.txt
+          grep -q "^PASS expectedPatch=${{ matrix.expected_patch }}$" run/ci-recipe-test-result.txt
+
+          for stone in asurine crimsite diorite ochrum tuff veridium; do
+            if [ "${{ matrix.expected_patch }}" = "true" ]; then
+              grep -q "^$stone: direct=false, recycling=true$" run/ci-recipe-test-result.txt
+            else
+              grep -q "^$stone: direct=true, recycling=true$" run/ci-recipe-test-result.txt
+            fi
+          done
