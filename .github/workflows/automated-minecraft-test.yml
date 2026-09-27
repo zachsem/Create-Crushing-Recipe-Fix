@@ -1,0 +1,116 @@
+name: Automated Minecraft Smoke Test
+
+"on":
+  workflow_dispatch:
+  push:
+    branches:
+      - automation-poc
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: "17"
+  MC_VERSION: "1.18.2"
+  CREATE_FILE_ID: "5797603"
+
+jobs:
+  client-smoke:
+    name: Forge client smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Build release JAR
+        run: python build.py
+
+      - name: Validate built JAR
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          jar = Path("dist/create-crushing-recipe-fix-1.0.1.jar")
+          if not jar.is_file():
+              raise SystemExit(f"Missing built JAR: {jar}")
+
+          with zipfile.ZipFile(jar) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f"Corrupt entry in JAR: {bad}")
+
+          print(f"Validated {jar}")
+          PY
+
+      - name: Stage patch and Create
+        run: |
+          mkdir -p run/mods
+          cp dist/create-crushing-recipe-fix-1.0.1.jar run/mods/
+          curl --fail --location --retry 4 --retry-all-errors \
+            "https://cursemaven.com/curse/maven/create-328085/${CREATE_FILE_ID}/create-328085-${CREATE_FILE_ID}.jar" \
+            --output run/mods/create-1.18.2-0.5.1.i.jar
+          test -s run/mods/create-1.18.2-0.5.1.i.jar
+
+      - name: Run real Forge client
+        uses: headlesshq/mc-runtime-test@4.5.1
+        with:
+          mc: ${{ env.MC_VERSION }}
+          modloader: forge
+          regex: .*forge.*
+          mc-runtime-test: lexforge
+          java: ${{ env.JAVA_VERSION }}
+          cache-mc: "github"
+
+  server-smoke:
+    name: Forge dedicated-server smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Build release JAR
+        run: python build.py
+
+      - name: Stage patch and Create
+        run: |
+          mkdir -p run/mods
+          cp dist/create-crushing-recipe-fix-1.0.1.jar run/mods/
+          curl --fail --location --retry 4 --retry-all-errors \
+            "https://cursemaven.com/curse/maven/create-328085/${CREATE_FILE_ID}/create-328085-${CREATE_FILE_ID}.jar" \
+            --output run/mods/create-1.18.2-0.5.1.i.jar
+          test -s run/mods/create-1.18.2-0.5.1.i.jar
+
+      - name: Run real Forge dedicated server
+        uses: headlesshq/mc-server-test@1.1.1
+        with:
+          mc: ${{ env.MC_VERSION }}
+          modloader: forge
+          java: ${{ env.JAVA_VERSION }}
+          cache-mc: "github"
