@@ -4,10 +4,13 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,16 +29,20 @@ public class RecipeAssertionsMod {
     };
 
     public RecipeAssertionsMod() {
-        MinecraftForge.EVENT_BUS.addListener(this::onServerStarted);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
     }
 
-    private void onServerStarted(ServerStartedEvent event) {
+    private void onServerStarting(ServerStartingEvent event) {
         boolean expectPatch = Boolean.parseBoolean(
                 System.getProperty("createCrushingRecipeFix.expected", "true")
+        );
+        Path resultFile = Path.of(
+                System.getProperty("createCrushingRecipeFix.resultFile", "ci-recipe-test-result.txt")
         );
 
         RecipeManager recipes = event.getServer().getRecipeManager();
         List<String> failures = new ArrayList<>();
+        List<String> observations = new ArrayList<>();
 
         for (String stone : STONES) {
             ResourceLocation direct = new ResourceLocation("create", "crushing/" + stone);
@@ -43,6 +50,10 @@ public class RecipeAssertionsMod {
 
             boolean directLoaded = recipes.byKey(direct).isPresent();
             boolean recyclingLoaded = recipes.byKey(recycling).isPresent();
+
+            observations.add(
+                    stone + ": direct=" + directLoaded + ", recycling=" + recyclingLoaded
+            );
 
             if (expectPatch && directLoaded) {
                 failures.add("redundant recipe still loaded: " + direct);
@@ -59,14 +70,37 @@ public class RecipeAssertionsMod {
 
         if (!failures.isEmpty()) {
             failures.forEach(failure -> LOGGER.error("[Create Crushing Recipe CI] {}", failure));
+
+            String result = "FAIL expectedPatch=" + expectPatch + System.lineSeparator()
+                    + String.join(System.lineSeparator(), observations) + System.lineSeparator()
+                    + String.join(System.lineSeparator(), failures) + System.lineSeparator();
+            writeResult(resultFile, result);
+
             throw new IllegalStateException(
                     "Create Crushing Recipe CI assertions failed (" + failures.size() + " failure(s))"
             );
         }
 
+        String result = "PASS expectedPatch=" + expectPatch + System.lineSeparator()
+                + String.join(System.lineSeparator(), observations) + System.lineSeparator();
+        writeResult(resultFile, result);
+
         LOGGER.info(
                 "[Create Crushing Recipe CI] PASS: expectedPatch={}, all six recipe pairs matched expectations",
                 expectPatch
         );
+    }
+
+    private static void writeResult(Path resultFile, String result) {
+        try {
+            Path parent = resultFile.toAbsolutePath().getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.writeString(resultFile, result);
+            LOGGER.info("[Create Crushing Recipe CI] Wrote result to {}", resultFile.toAbsolutePath());
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not write Create Crushing Recipe CI result file", e);
+        }
     }
 }
