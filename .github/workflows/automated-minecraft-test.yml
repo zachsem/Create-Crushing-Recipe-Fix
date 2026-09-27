@@ -130,6 +130,7 @@ jobs:
         run: |
           mkdir -p run/mods
           rm -f run/ci-recipe-test-result.txt
+          printf '%s\n' "${{ matrix.expected_patch }}" > run/ci-recipe-test-expected.txt
 
           cp ci/recipe-test-mod/build/libs/create-crushing-recipe-ci-test-1.0.0.jar run/mods/
 
@@ -154,9 +155,6 @@ jobs:
           modloader: forge
           java: ${{ env.JAVA_VERSION }}
           cache-mc: "true"
-          headlessmc-command: >-
-            --jvm "-DcreateCrushingRecipeFix.expected=${{ matrix.expected_patch }}
-            -DcreateCrushingRecipeFix.resultFile=${{ github.workspace }}/run/ci-recipe-test-result.txt"
 
       - name: Verify runtime recipe assertions
         if: always()
