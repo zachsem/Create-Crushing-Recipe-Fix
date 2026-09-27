@@ -19,6 +19,9 @@ public class RecipeAssertionsMod {
     public static final String MODID = "create_crushing_recipe_ci_test";
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final Path EXPECTED_FILE = Path.of("ci-recipe-test-expected.txt");
+    private static final Path RESULT_FILE = Path.of("ci-recipe-test-result.txt");
+
     private static final String[] STONES = {
             "asurine",
             "crimsite",
@@ -33,13 +36,7 @@ public class RecipeAssertionsMod {
     }
 
     private void onServerStarting(ServerStartingEvent event) {
-        boolean expectPatch = Boolean.parseBoolean(
-                System.getProperty("createCrushingRecipeFix.expected", "true")
-        );
-        Path resultFile = Path.of(
-                System.getProperty("createCrushingRecipeFix.resultFile", "ci-recipe-test-result.txt")
-        );
-
+        boolean expectPatch = readExpectedPatch();
         RecipeManager recipes = event.getServer().getRecipeManager();
         List<String> failures = new ArrayList<>();
         List<String> observations = new ArrayList<>();
@@ -74,7 +71,7 @@ public class RecipeAssertionsMod {
             String result = "FAIL expectedPatch=" + expectPatch + System.lineSeparator()
                     + String.join(System.lineSeparator(), observations) + System.lineSeparator()
                     + String.join(System.lineSeparator(), failures) + System.lineSeparator();
-            writeResult(resultFile, result);
+            writeResult(result);
 
             throw new IllegalStateException(
                     "Create Crushing Recipe CI assertions failed (" + failures.size() + " failure(s))"
@@ -83,7 +80,7 @@ public class RecipeAssertionsMod {
 
         String result = "PASS expectedPatch=" + expectPatch + System.lineSeparator()
                 + String.join(System.lineSeparator(), observations) + System.lineSeparator();
-        writeResult(resultFile, result);
+        writeResult(result);
 
         LOGGER.info(
                 "[Create Crushing Recipe CI] PASS: expectedPatch={}, all six recipe pairs matched expectations",
@@ -91,14 +88,26 @@ public class RecipeAssertionsMod {
         );
     }
 
-    private static void writeResult(Path resultFile, String result) {
+    private static boolean readExpectedPatch() {
         try {
-            Path parent = resultFile.toAbsolutePath().getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
+            String value = Files.readString(EXPECTED_FILE).trim();
+            if (!value.equals("true") && !value.equals("false")) {
+                throw new IllegalStateException("Invalid expected-patch value: " + value);
             }
-            Files.writeString(resultFile, result);
-            LOGGER.info("[Create Crushing Recipe CI] Wrote result to {}", resultFile.toAbsolutePath());
+            return Boolean.parseBoolean(value);
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Could not read Create Crushing Recipe CI expectation file: "
+                            + EXPECTED_FILE.toAbsolutePath(),
+                    e
+            );
+        }
+    }
+
+    private static void writeResult(String result) {
+        try {
+            Files.writeString(RESULT_FILE, result);
+            LOGGER.info("[Create Crushing Recipe CI] Wrote result to {}", RESULT_FILE.toAbsolutePath());
         } catch (IOException e) {
             throw new IllegalStateException("Could not write Create Crushing Recipe CI result file", e);
         }
