@@ -4,6 +4,7 @@ name: Automated Minecraft Smoke Test
   workflow_dispatch:
   push:
     branches:
+      - main
       - automation-poc
 
 permissions:
