@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest a small related compatibility fix
+title: "[Request]: "
+labels:
+  - "type: enhancement"
+  - "status: needs triage"
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: What would you like changed?
+      description: Describe the requested fix or compatibility improvement.
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why is it needed?
+      description: Link the upstream issue, bug report, or reproducible example when possible.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This request is related to Create 0.5.1i / Minecraft 1.18.2 compatibility or recipe-fix behavior.
+          required: true
+        - label: I checked existing issues for the same request.
+          required: true
